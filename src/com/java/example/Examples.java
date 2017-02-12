@@ -1,5 +1,8 @@
 package com.java.example;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -11,7 +14,7 @@ import java.util.function.Supplier;
  * Created by Stefan Hungerbuehler on 12.02.2017.
  * Taken from: http://winterbe.com/posts/2014/03/16/java-8-tutorial/
  */
-public class TestExamples {
+public class Examples {
     public static void main(String[] args) {
 
         // 1. Default Methods for Interfaces
@@ -183,7 +186,7 @@ public class TestExamples {
         long t0 = System.nanoTime();
 
         long count = values.stream().sorted().count();
-        System.out.println(count);
+        System.out.println("count: "  + count);
 
         long t1 = System.nanoTime();
 
@@ -218,7 +221,30 @@ public class TestExamples {
         System.out.println("map.get(3): " + map.get(3));      // val33
 
         // 10. Date API
-        System.out.println("+-- 6. Built-in Functional Interfaces");
+        System.out.println("+-- 10. Date API");
+
+        //   a) Clock (Clock provides access to the current date and time)
+        System.out.println("     a) Clock");
+
+        Clock clock = Clock.systemDefaultZone();
+        long milliSeconds = clock.millis();
+        System.out.println("milliSeconds: " + milliSeconds);
+
+        // Instants can be used to create legacy java.util.Date objects
+        Instant instant = clock.instant();
+        Date legacyDate = Date.from(instant);
+        System.out.println("legacyDate: " + legacyDate);
+
+        //   b) Timezones (Timezones define the offsets which are important to convert between instants and local dates and times)
+        System.out.println("     b) Timezones");
+
+        // print all available zimezone ids
+        System.out.println(ZoneId.getAvailableZoneIds());
+
+        ZoneId zone1 = ZoneId.of("Europe/Berlin");
+        ZoneId zone2 = ZoneId.of("Brazil/East");
+        System.out.println("zone1 Rules: " + zone1.getRules());
+        System.out.println("zone2 Rules: " + zone2.getRules());
 
     }
 }
