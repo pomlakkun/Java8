@@ -1,14 +1,18 @@
 package com.java.example;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 /**
  * Created by Stefan Hungerbuehler on 12.02.2017.
@@ -246,5 +250,82 @@ public class Examples {
         System.out.println("zone1 Rules: " + zone1.getRules());
         System.out.println("zone2 Rules: " + zone2.getRules());
 
+        //   c) LocalTime (LocalTime represents a time without a timezone, e.g. 10pm or 17:30:15)
+        System.out.println("     c) LocalTime");
+
+        LocalTime now1 = LocalTime.now(zone1);
+        LocalTime now2 = LocalTime.now(zone2);
+        System.out.println("now1.isBefore(now2): " + now1.isBefore(now2));  // false
+
+        long hoursBetween = ChronoUnit.HOURS.between(now1, now2);
+        long minutesBetween = ChronoUnit.MINUTES.between(now1, now2);
+
+        System.out.println("hoursBetween: " + hoursBetween);       // -3
+        System.out.println("minutesBetween: " + minutesBetween);     // -239
+
+        // LocalTime comes with various factory method to simplify the creation of new instances, including parsing of time strings.
+        LocalTime late = LocalTime.of(23, 59, 59);
+        System.out.println("late: " + late);       // 23:59:59
+
+        DateTimeFormatter germanFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.GERMAN);
+
+        LocalTime leetTime = LocalTime.parse("06:13", germanFormatter);
+        System.out.println("leetTime: " + leetTime);   // 06:13
+
+        //   d) LocalDate (LocalDate represents a distinct date, e.g. 2014-03-11)
+        System.out.println("     d) LocalDate");
+
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plus(1, ChronoUnit.DAYS);
+        LocalDate yesterday = tomorrow.minusDays(2);
+
+        LocalDate independenceDay = LocalDate.of(2014, Month.JULY, 4);
+        DayOfWeek dayOfWeek = independenceDay.getDayOfWeek();
+        System.out.println("dayOfWeek: " + dayOfWeek);    // FRIDAY
+
+        germanFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.GERMAN);
+
+        LocalDate xmas = LocalDate.parse("24.12.2014", germanFormatter);
+        System.out.println(xmas);   // 2014-12-24
+
+        //   e) LocalDateTime (LocalDateTime represents a date-time)
+        System.out.println("     e) LocalDateTime");
+        LocalDateTime sylvester = LocalDateTime.of(2014, Month.DECEMBER, 31, 23, 59, 59);
+        dayOfWeek = sylvester.getDayOfWeek();
+        System.out.println("dayOfWeek: " + dayOfWeek);      // WEDNESDAY
+
+        Month month = sylvester.getMonth();
+        System.out.println("month: " + month);          // DECEMBER
+
+        long minuteOfDay = sylvester.getLong(ChronoField.MINUTE_OF_DAY);
+        System.out.println("minuteOfDay: " + minuteOfDay);    // 1439
+
+        // Formatting
+        instant = sylvester.atZone(ZoneId.systemDefault()).toInstant();
+
+        legacyDate = Date.from(instant);
+        System.out.println("legacyDate: " + legacyDate);     // Wed Dec 31 23:59:59 CET 2014
+
+        // 11. Annotations
+        System.out.println("+-- 11. Annotations");
+        // nothing here
+
+        // 12. Hidden Features
+        System.out.println("+-- 12. Hidden Features");
+        // how many cores has my pc|notebook|tablet
+        System.out.println("Number of cores on my system: " + Util.numberOfCores() + " cores!!!");
+
+        // print a list comma separated in uppercase
+        List<String> nameList = Arrays.asList("Tom", "Jerry", "Jane", "Jack");
+        System.out.println(nameList.stream().map(String::toUpperCase).collect(Collectors.joining(", ")));
+
+        // compute sum of double
+        double[] numbers = {1, 24, 45, 62, 85, 8, 91, 3, 5, 56, 9};
+        double total = DoubleStream.of(numbers).sum();
+        System.out.println("total is: " + total);
+
+        // or another way
+        total = Arrays.stream(numbers).sum();
+        System.out.println("total is: " + total);
     }
 }
