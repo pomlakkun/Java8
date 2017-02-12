@@ -1,6 +1,7 @@
 package com.java.example;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -142,6 +143,82 @@ public class TestExamples {
         //   a) Filter (Filter accepts a predicate to filter all elements of the stream)
         System.out.println("     a) Filter");
         stringCollection.stream().filter(s -> s.startsWith("a")).forEach(System.out::println);
+
+        //   b) Sorted (Sorted is an intermediate operation which returns a sorted view of the stream)
+        System.out.println("     b) Sorted");
+        stringCollection.stream().sorted().filter(s->s.startsWith("a")).forEach(System.out::println);
+
+        //   c) Map (The intermediate operation map converts each element into another object via the given function)
+        System.out.println("     c) Map");
+        stringCollection.stream().map(String::toUpperCase).sorted((a,b)->a.compareTo(b)).forEach(System.out::println);
+
+        //   d) Match (Various matching operations can be used to check whether a certain predicate matches the stream)
+        System.out.println("     d) Match");
+        boolean anyStartsWithA = stringCollection.stream().anyMatch(s->s.startsWith("a"));
+        System.out.println("startsWithA: " + anyStartsWithA);      // true
+
+        //   e) Count (Count is a terminal operation returning the number of elements in the stream as a long)
+        System.out.println("     e) Count");
+        long startsWithB = stringCollection.stream().filter(s->s.startsWith("b")).count();
+        System.out.println("startsWithB: " + startsWithB);      // 3
+
+        //   f) Reduce (This terminal operation performs a reduction on the elements of the stream with the given function)
+        System.out.println("     f) Reduce");
+        Optional<String> reduced = stringCollection.stream().sorted().reduce((s1, s2) -> s1 + "#" + s2);
+        reduced.ifPresent(System.out::println);
+
+        // 8. Parallel Streams (Operations on parallel streams are performed concurrent on multiple threads)
+        System.out.println("+-- 8. Parallel Streams");
+
+        // First we create a large list of unique elements
+        int max = 1000000;
+        List<String> values = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            UUID uuid = UUID.randomUUID();
+            values.add(uuid.toString());
+        }
+
+        //   a) Sequential Sort
+        System.out.println("     a) Sequential Sort");
+        long t0 = System.nanoTime();
+
+        long count = values.stream().sorted().count();
+        System.out.println(count);
+
+        long t1 = System.nanoTime();
+
+        long millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
+        System.out.println(String.format("sequential sort took: %d ms", millis)); // sequential sort took: 899 ms
+
+        //   b) Parallel Sort
+        System.out.println("     b) Parallel Sort");
+
+        t0 = System.nanoTime();
+
+        count = values.parallelStream().sorted().count();
+        System.out.println(count);
+
+        t1 = System.nanoTime();
+
+        millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
+        System.out.println(String.format("parallel sort took: %d ms", millis)); // parallel sort took: 472 ms
+
+        // 9. Map
+        System.out.println("+-- 9. Map");
+        Map<Integer, String> map = new HashMap<>();
+
+        for (int i = 0; i < 10; i++) {
+            map.putIfAbsent(i, "val" + i);
+        }
+
+        map.forEach((id, val) -> System.out.println(val));
+
+        // compute code on the map by utilizing functions
+        map.computeIfPresent(3, (numb, val) -> val + numb);
+        System.out.println("map.get(3): " + map.get(3));      // val33
+
+        // 10. Date API
+        System.out.println("+-- 6. Built-in Functional Interfaces");
 
     }
 }
